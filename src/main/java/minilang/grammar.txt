@@ -1,0 +1,34 @@
+program        -> declaration* EOF ;
+
+declaration    -> var_decl | statement ;
+
+var_decl       -> ( LONG | DOUBLE ) identifier ("," identifier)* ";" ;
+
+statement      -> assignment_stmt
+                | io_stmt
+                | if_stmt
+                | while_stmt
+                | block
+                | ";" ;
+
+assignment_stmt -> identifier assignment_op expression ";" ;
+assignment_op  -> "=" | "+=" | "-=" | "*=" | "/=" ;
+
+io_stmt        -> "read" "(" identifier ")" ";"
+                | "write" "(" expression ")" ";" ;
+
+if_stmt        -> "if" "(" expression ")" "then" statement ( "else" statement )? ;
+
+while_stmt     -> "while" "(" expression ")" block ;
+
+block          -> "{" declaration* "}" ;
+
+expression     -> logical_or ;
+logical_or     -> logical_and ( "||" logical_and )* ;
+logical_and    -> equality ( "&&" equality )* ;
+equality       -> relational ( ( "==" | "!=" | "<>" ) relational )* ;
+relational     -> additive ( ( ">" | "<" | ">=" | "<=" ) additive )* ;
+additive       -> multiplicative ( ( "+" | "-" ) multiplicative )* ;
+multiplicative -> unary ( ( "*" | "/" ) unary )* ;
+unary          -> ( "!" | "-" ) unary | primary ;
+primary        -> NUMBER_INT | NUMBER_REAL | STRING | IDENTIFIER | "(" expression ")" ;

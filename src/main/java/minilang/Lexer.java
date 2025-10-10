@@ -15,6 +15,8 @@ public class Lexer {
     private int line = 1;
     private int column = 1;
 
+    private int currentTokenIndex = 0; // para ir devolviendo tokens uno a uno
+
     public Lexer(String source) {
         this.source = source;
     }
@@ -27,6 +29,7 @@ public class Lexer {
         return errors;
     }
 
+    // Método principal para escanear todo el código
     public void tokenize() {
         while (!isAtEnd()) {
             char current = peek();
@@ -176,6 +179,7 @@ public class Lexer {
             case '{' -> TokenType.LBRACE;
             case '}' -> TokenType.RBRACE;
             case ';' -> TokenType.SEMICOLON;
+            case ',' -> TokenType.COMMA;
             default -> TokenType.UNKNOWN;
         };
 
@@ -207,4 +211,24 @@ public class Lexer {
         position++;
         return true;
     }
+
+    // ==================== NUEVO: MÉTODOS PÚBLICOS DE ACCESO ==================== //
+
+    /** Devuelve el siguiente token sin volver a tokenizar todo. */
+    public Token getNextToken() {
+        if (tokens.isEmpty()) {
+            tokenize();
+        }
+        if (currentTokenIndex < tokens.size()) {
+            return tokens.get(currentTokenIndex++);
+        } else {
+            return new Token(TokenType.EOF, "", line, column);
+        }
+    }
+
+    /** Método alias usado por Main o Parser */
+    public Token nextToken() {
+        return getNextToken();
+    }
 }
+
