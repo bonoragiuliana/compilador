@@ -1,0 +1,9 @@
+long x;
+double n;
+int m;
+x = 10;
+y = x + 3.5;
+m = 1;
+print(y);
+
+

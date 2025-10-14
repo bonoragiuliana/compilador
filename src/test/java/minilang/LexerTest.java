@@ -2,33 +2,31 @@
 
 package minilang;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class LexerTest {
     public static void main(String[] args) {
-        String source = """
-                /* Programa de ejemplo */
-                long _x, _y;
-                double _prom;
-                read(_x);
-                read(_y);
-                if (_x > _y) then
-                    _prom = (_x + _y) / 2;
-                else
-                    _prom = (_y - _x) / 2;
-                write(_prom);
-                // Fin del programa
-                """;
+        String filePath = "src/test/java/minilang/archivo.min";
+        try {
+            String source = Files.readString(Paths.get(filePath));
 
-        Lexer lexer = new Lexer(source);
-        lexer.tokenize();
+            Lexer lexer = new Lexer(source);
+            lexer.tokenize();
 
-        System.out.println("=== TOKENS ===");
-        for (Token token : lexer.getTokens()) {
-            System.out.println(token);
-        }
+            System.out.println("=== TOKENS ===");
+            for (Token token : lexer.getTokens()) {
+                System.out.println(token);
+            }
 
-        System.out.println("\n=== ERRORES ===");
-        for (LexError error : lexer.getErrors()) {
-            System.out.println(error);
+            System.out.println("\n=== ERRORES ===");
+            for (LexError error : lexer.getErrors()) {
+                System.out.println(error);
+            }
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
 }
+
