@@ -16,29 +16,56 @@ public class Main {
         System.out.println(" Analizando archivo: " + filePath);
 
         try {
-            // 1 Leer archivo fuente
+            // === Lectura del archivo fuente ===
             String source = Files.readString(Path.of(filePath));
 
-            //2 Análisis léxico
+            // === Análisis Léxico ===
             Lexer lexer = new Lexer(source);
             lexer.tokenize();
             List<Token> tokens = lexer.getTokens();
 
-            System.out.println("\n=== TOKENS ===");
-            for (Token token : tokens) {
-                System.out.println(token);
+            System.out.println("\n === ANÁLISIS LÉXICO ===");
+            if (tokens.isEmpty()) {
+                System.out.println(" No se detectaron tokens.");
+            } else {
+                for (Token token : tokens) {
+                    System.out.println(token);
+                }
             }
 
-            // 3 Análisis sintáctico
+            // Mostrar errores léxicos
+            System.out.println("\n === ERRORES LÉXICOS ===");
+            if (lexer.getErrors().isEmpty()) {
+                System.out.println(" No se encontraron errores léxicos.");
+            } else {
+                for (LexError e : lexer.getErrors()) {
+                    System.out.println(e);
+                }
+                // Si hay errores léxicos graves, no seguir
+                System.out.println("\n Se detiene el análisis por errores léxicos.");
+                return;
+            }
+
+            // === Análisis Sintáctico ===
             Parser parser = new Parser(tokens);
             List<Stmt> statements = parser.parse();
 
-            // 4 Análisis semántico
+            System.out.println("\n === ANÁLISIS SINTÁCTICO ===");
+            if (parser.getErrors().isEmpty()) {
+                System.out.println(" Estructura sintáctica correcta. No se encontraron errores.");
+            } else {
+                for (SyntaxError e : parser.getErrors()) {
+                    System.out.println(e);
+                }
+                System.out.println("\n Se detiene el análisis por errores sintácticos.");
+                return;
+            }
+
+            // === Análisis Semántico ===
             SemanticAnalyzer semantic = new SemanticAnalyzer();
             semantic.analyze(statements);
 
-            // 5 Mostrar errores semánticos (si hay)
-            System.out.println("\n=== ERRORES SEMÁNTICOS ===");
+            System.out.println("\n === ANÁLISIS SEMÁNTICO ===");
             if (semantic.getErrors().isEmpty()) {
                 System.out.println(" No se encontraron errores semánticos.");
             } else {
@@ -47,16 +74,17 @@ public class Main {
                 }
             }
 
-            // 6 Mostrar tabla de símbolos
-            System.out.println("\n=== TABLA DE SÍMBOLOS ===");
+            // === Tabla de Símbolos ===
+            System.out.println("\n === TABLA DE SÍMBOLOS ===");
             semantic.getSymbolTable().printTable();
 
+            System.out.println("\n Análisis completo finalizado con éxito.");
+
         } catch (IOException e) {
-            System.err.println("Error al leer el archivo: " + e.getMessage());
+            System.err.println(" Error al leer el archivo: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Error general: " + e.getMessage());
+            System.err.println(" Error general: " + e.getMessage());
             e.printStackTrace();
         }
     }
 }
-

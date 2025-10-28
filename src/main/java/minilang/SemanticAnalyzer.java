@@ -7,7 +7,7 @@ public class SemanticAnalyzer implements Stmt.Visitor<Void>, Expr.Visitor<String
 
     private final SymbolTable symbols = new SymbolTable();
     private final List<SemanticError> errors = new ArrayList<>();
-    private final String currentScope = "global"; // de momento, todo es ámbito global
+    private final String currentScope = "global";
 
     public List<SemanticError> getErrors() {
         return errors;
@@ -52,7 +52,7 @@ public class SemanticAnalyzer implements Stmt.Visitor<Void>, Expr.Visitor<String
         String leftType = symbols.getType(varName);
         String rightType = stmt.value.accept(this);
 
-        if (rightType != null && !leftType.equals(rightType)) {
+        if (rightType != null && !isCompatible(leftType, rightType)) {
             errors.add(new SemanticError("Asignación incompatible: " + leftType + " = " + rightType, stmt.name.line));
         }
 
@@ -115,8 +115,18 @@ public class SemanticAnalyzer implements Stmt.Visitor<Void>, Expr.Visitor<String
 
         if (leftType == null || rightType == null) return null;
 
+        // Si ambos son numéricos, aplicar promoción de tipos
+        if (isNumeric(leftType) && isNumeric(rightType)) {
+            if (leftType.equals("double") || rightType.equals("double")) {
+                return "double"; // promoción a double
+            }
+            return "long";
+        }
+
+        // Si no son compatibles, reportar error
         if (!leftType.equals(rightType)) {
             errors.add(new SemanticError("Operación incompatible: " + leftType + " " + expr.operator.lexeme + " " + rightType, expr.operator.line));
+            return null;
         }
 
         return leftType;
@@ -150,6 +160,21 @@ public class SemanticAnalyzer implements Stmt.Visitor<Void>, Expr.Visitor<String
         return expr.right.accept(this);
     }
 
+    // ======================
+    // FUNCIONES AUXILIARES
+    // ======================
 
+    private boolean isNumeric(String type) {
+        return type.equals("long") || type.equals("double");
+    }
 
+    private boolean isCompatible(String leftType, String rightType) {
+        // Si son iguales, es compatible
+        if (leftType.equals(rightType)) return true;
+
+        // Si ambos son numéricos, permitir conversión implícita
+        if (isNumeric(leftType) && isNumeric(rightType)) return true;
+
+        return false;
+    }
 }

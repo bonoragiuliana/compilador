@@ -1,9 +1,11 @@
-long x;
-double n;
-int m;
+double x;
+double y;
+double z;
+
 x = 10;
 y = x + 3.5;
-m = 1;
-print(y);
+z = x + 2;
 
-
+read(x);
+write(y);
+write(z);
